@@ -1,0 +1,10 @@
+node_modules/
+.nyc_output/
+dist/
+bin/
+.idea/
+**/node_modules
+coverage/
+mochawesome-report/
+package-lock.json
+/config/keys/
