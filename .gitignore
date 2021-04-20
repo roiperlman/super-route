@@ -8,3 +8,6 @@ coverage/
 mochawesome-report/
 package-lock.json
 /config/keys/
+docs/
+docs
+/docs/

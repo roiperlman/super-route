@@ -1,9 +1,10 @@
-import mocha from 'mocha';
+// import mocha from 'mocha';
 import {expect} from 'chai';
-import SuperRoute, {
+import {
+  SuperRoute,
   AccessControlFunction,
   RoutePermissions
-} from "../src/SuperRoute";
+} from "../src";
 // express
 import Express, {ErrorRequestHandler, NextFunction, Request, RequestHandler, Response, Router} from 'express';
 
@@ -31,7 +32,8 @@ function verifyUserPermissions(req: Request, permissions: RoutePermissions): Pro
     const hierarchy: Array<string> = [
       'normal',
       'editor',
-      'admin'
+      'admin',
+      'super'
     ];
     let authStatus: boolean|undefined;
     try {
@@ -56,7 +58,7 @@ export class TestRoute extends SuperRoute {
     } catch (err) {
       next(err)
     }
-    if (!authenticated) {
+    if (!authenticated && !req.hasOwnProperty('user')) {
       // return next(this.Error('user not authenticated', 403))
       this.handleError(req, res, next, `user not authenticated on route ${req.path}`, 403)
     } else {
@@ -66,10 +68,12 @@ export class TestRoute extends SuperRoute {
 
   $$accessControlFunction: AccessControlFunction = (permissions: RoutePermissions) => {
     return async (req: Request, res: Response, next: NextFunction) => {
+      // @ts-ignore
+      console.log('user:',req.user);
       let auth;
       try {
         // @ts-ignore
-        auth = await verifyUserPermissions(req.user.permissions, permissions)
+        auth = await verifyUserPermissions(req, permissions)
       } catch (err) {
         return next(err);
       }
@@ -95,6 +99,43 @@ export const routes: Array<TestRoute> = [
     ]
   }),
   new TestRoute({
+    path: 'required/:route/*',
+    verb: 'get',
+    name: 'required route param',
+    authenticate: false,
+    routeParams: [
+      new RouteParameter(
+        'route',
+        '---',
+        true,
+        [
+          {
+            test: (value: string) => {
+              return ['admin', 'super'].includes(value)
+            },
+            description: 'user role is admin or super'
+          }
+        ]
+      ),
+      new RouteParameter(
+        'param',
+        '---',
+        true,
+        [
+          {
+            test: value => value > 10,
+            description: 'checks if age is above 10'
+          }
+        ]
+      )
+    ],
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({response: 'Ok'})
+      }
+    ]
+  }),
+  new TestRoute({
     path: 'limited',
     verb: 'get',
     name: 'authenticated route',
@@ -111,6 +152,7 @@ export const routes: Array<TestRoute> = [
     name: 'new user',
     description: 'creates a new user',
     authenticate: true,
+    showHelp: true,
     bodyParams: [
       new BodyParameter('firstName', 'string', 'user first name', true),
       new BodyParameter('lastName', 'string', 'user last name', true),
@@ -213,6 +255,26 @@ export const routes: Array<TestRoute> = [
     ]
   }),
   new TestRoute({
+    path: 'handleWithStaticRedirect',
+    verb: 'post',
+    name: 'handle with static redirect',
+    description: 'handles error with the static method and redirect',
+    redirectOnError: '/login',
+    authenticate: true,
+    bodyParams: [
+      new BodyParameter('throwError', 'boolean', 'will throw error if true', true)
+    ],
+    middleware: [
+      function (req: Request, res: Response, next: NextFunction) {
+        if (req.body.throwError) {
+          TestRoute.HandleError(this)(req, res, next, 'throwError was true', 500, true)
+        } else {
+          res.status(200).send({user: 'Ok'})
+        }
+      }
+    ]
+  }),
+  new TestRoute({
     path: 'handleWithRouteError',
     verb: 'post',
     name: 'handle with route error',
@@ -229,6 +291,110 @@ export const routes: Array<TestRoute> = [
         } else {
           res.status(200).send({user: 'Ok'})
         }
+      }
+    ]
+  }),
+  new TestRoute({
+    path: 'handleWithThisHandle',
+    verb: 'post',
+    name: 'handle with this.handle',
+    description: 'handles error with this.handle',
+    authenticate: true,
+    bodyParams: [
+      new BodyParameter('throwError', 'boolean', 'will throw error if true', true)
+    ],
+    middleware: [
+      function (req: Request, res: Response, next: NextFunction) {
+        if (req.body.throwError) {
+          this.handle(arguments, new Error('some error'), 402, 'custom response', true, false, {somekey: 'somevalue'});
+        } else {
+          res.status(200).send({user: 'Ok'})
+        }
+      }
+    ]
+  }),
+  new TestRoute({
+    path: 'versioned1',
+    verb: 'post',
+    name: 'versioned route 1',
+    authenticate: false,
+    bodyParams: [
+      new BodyParameter('sum', 'number', '', true)
+    ],
+    versionedMiddleware: [
+      {
+        version: '1.0.0',
+        default: false,
+        middleware: [
+          (req: Request, res: Response, next: NextFunction) => {
+            console.log(123245);
+            // @ts-ignore
+            console.log(req['version']);
+            req.body.sum += 10;
+            next()
+          },
+          (req: Request, res: Response, next: NextFunction) => {
+            req.body.sum += 10;
+            res.send({sum: req.body.sum})
+          },
+        ]
+      },
+      {
+        version: '>=1.2.0 <2.0.0',
+        default: false,
+        middleware: [
+          (req: Request, res: Response, next: NextFunction) => {
+            req.body.sum += 100;
+            next()
+          },
+          (req: Request, res: Response, next: NextFunction) => {
+            req.body.sum += 100;
+            res.send({sum: req.body.sum})
+          },
+        ]
+      },
+      {
+        version: '2.0.0',
+        default: true,
+        middleware: [
+          (req: Request, res: Response, next: NextFunction) => {
+            req.body.sum += 1000;
+            next()
+          },
+          (req: Request, res: Response, next: NextFunction) => {
+            req.body.sum += 1000;
+            res.send({sum: req.body.sum})
+          },
+        ]
+      },
+
+    ]
+  }),
+  new TestRoute({
+    path: 'adminOnly',
+    verb: 'get',
+    name: 'admin only',
+    authenticate: true,
+    permissions: {
+      specific: ['admin']
+    },
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({response: 'Ok'})
+      }
+    ]
+  }),
+  new TestRoute({
+    path: 'adminOrGt',
+    verb: 'get',
+    name: 'admin or gt',
+    authenticate: true,
+    permissions: {
+      equalOrGreaterThan: 'admin'
+    },
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({response: 'Ok'})
       }
     ]
   }),
@@ -289,18 +455,120 @@ describe('Class SuperRoute', async function () {
   });
   this.timeout(600000);
 
-  it('make a get request to a superroute instance mounted on a router', async function () {
-    await routeTestRequest('test route')
-      .expect(200)
+  describe('Mounting', async function () {
+    it('should fail to mount an authenticated route with no authentication function', async function () {
+      class NoAuthFunction extends SuperRoute {}
+      const route = new NoAuthFunction({
+        path: "/some_path",
+        verb: 'post',
+        name: 'authenticated',
+        authenticate: true,
+      })
+      const router = Router();
+      expect(function() {
+        route.mount(router)
+      }).to.throw(Error, `Authentication function not defined for route /some_path`)
+    });
+    it('should fail to mount a route with permissions definitions with no access control function', async function () {
+      class NoAccessFunction extends SuperRoute {
+        $$authenticationFunction = function() {};
+      }
+      const route = new NoAccessFunction({
+        path: "/some_path",
+        verb: 'post',
+        name: 'access',
+        authenticate: false,
+        permissions: {
+          equalOrGreaterThan: 'admin'
+        },
+      })
+      const router = Router();
+      expect(function() {
+        route.mount(router)
+      }).to.throw(Error,`Access Control function not defined for route /some_path`)
+    });
+    it('should mount versioned routes', async function () {
+      const router = Router();
+      const route = getRoute('versioned route 1');
+      if (route) {
+        route.mount(router);
+        expect(router.stack[0].route.stack).to.have.length(2);
+      }
+    });
+    it('should mount route with a function as middleware argument instead of array', async function () {
+      const route = new TestRoute({
+        path: "/some_path",
+        verb: 'post',
+        name: 'authenticated',
+        authenticate: true,
+        middleware: (req: Request, res: Response, next: NextFunction) => {
+
+        }
+      })
+      const router = Router();
+      expect(function() {
+        route.mount(router)
+      }).to.not.throw(Error);
+    });
+    it('should fail to mount with wrong verb', async function () {
+
+      const route = new TestRoute({
+        path: "/some_path",
+        // @ts-ignore
+        verb: 'something',
+        name: 'authenticated',
+        middleware: (req: Request, res: Response, next: NextFunction) => {}
+      })
+      const router = Router();
+      expect(function() {
+        route.mount(router)
+      }).to.throw(Error);
+    });
   });
-  it('should use an authentication function and return a result that matches the user auth state', async function () {
-    userAuthState = false;
-    let response = await routeTestRequest('authenticated route')
-      .expect(403);
-    userAuthState = true;
-    response = await routeTestRequest('authenticated route')
-      .expect('Content-Type', /json/)
-      .expect(200)
+  describe('Access Control Routes', async function () {
+    it('should block and allow request to a route with equalOrGreaterThan route permissions', async function () {
+      await routeTestRequest('admin or gt')
+        .set({User: JSON.stringify({permissions: ['editor','admin']})})
+        .expect(200);
+      await routeTestRequest('admin or gt')
+        .set({User: JSON.stringify({permissions: ['admin']})})
+        .expect(200);
+      await routeTestRequest('admin or gt')
+        .set({User: JSON.stringify({permissions: ['editor']})})
+        .expect(403);
+      await routeTestRequest('admin or gt')
+        .set({User: JSON.stringify({permissions: ['super']})})
+        .expect(200);
+    });
+    it('should block and allow request to a route with specific route permissions', async function () {
+      await routeTestRequest('admin only')
+        .set({User: JSON.stringify({permissions: ['editor','admin']})})
+        .expect(200);
+      await routeTestRequest('admin only')
+        .set({User: JSON.stringify({permissions: ['admin']})})
+        .expect(200);
+      await routeTestRequest('admin only')
+        .set({User: JSON.stringify({permissions: ['editor']})})
+        .expect(403);
+      await routeTestRequest('admin only')
+        .set({User: JSON.stringify({permissions: ['super']})})
+        .expect(403);
+    });
+  });
+  describe('Vanilla Requests', async function () {
+    it('should make a get request to a superroute instance mounted on a router', async function () {
+      await routeTestRequest('test route')
+        .expect(200)
+    });
+    it('should use an authentication function and return a result that matches the user auth state', async function () {
+      userAuthState = false;
+      let response = await routeTestRequest('authenticated route')
+        .expect(403);
+      userAuthState = true;
+      response = await routeTestRequest('authenticated route')
+        .expect('Content-Type', /json/)
+        .expect(200)
+    });
   });
   describe('Body Parameters Validation', async function() {
     it('should mount a route with body parameters and make a successful request', async function () {
@@ -331,6 +599,16 @@ describe('Class SuperRoute', async function () {
           mobilePhone: '0509999999',
         })
         .expect(200);
+    });
+    it('should error when a required body param is missing', async function () {
+      userAuthState = true;
+      let response = await routeTestRequest('new user')
+        .send({
+          firstName: 'first',
+          lastName: 'last',
+          isAdmin: true,
+        })
+        .expect(400);
     });
     it('should error when at least one of the additional body param tests fails and return a list of body param errors', async function () {
       userAuthState = true;
@@ -373,7 +651,10 @@ describe('Class SuperRoute', async function () {
       await request(server)
         .post('/users/getSome/admin/12')
         .expect(200);
-      const res = await request(server)
+      // await request(server)
+      //   .post('/required/route/')
+      //   .expect(400);
+      await request(server)
         .post('/users/getSome/admin')
         .expect(200)
       await request(server)
@@ -390,7 +671,7 @@ describe('Class SuperRoute', async function () {
         .expect(400);
     });
   });
-  describe('Middleware Functions', function () {
+  describe('Error Handling', function () {
     it('should mount a middleware function that summons the error handler using the static method', async function () {
       let response = await routeTestRequest('handle with static')
         .send({throwError: false})
@@ -408,6 +689,51 @@ describe('Class SuperRoute', async function () {
         .send({throwError: true})
         .expect(500);
       expect(response.error.text).to.eq('route error thrown');
+    });
+    it('should handle error with this.handle', async function () {
+      let response = await routeTestRequest('handle with this.handle')
+        .send({throwError: true})
+        .expect(402);
+      expect(response.error.text).to.eq('custom response');
+    });
+    it('should redirect to defined path on error', async function () {
+      let response = await routeTestRequest('handle with static redirect')
+        .send({throwError: true})
+        .expect(302);
+    });
+  });
+  describe('Versioned Routes', async function () {
+    it('should make request to versioned route and get result matching the version', async function () {
+      let response
+      response = await routeTestRequest('versioned route 1')
+        .set({'Accept-version': '1.0.0'})
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(20);
+     response = await routeTestRequest('versioned route 1')
+        .set({'Accept-version': '1.2.0'})
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(200);
+      response = await routeTestRequest('versioned route 1')
+        .set({'Accept-version': '1.3.0'})
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(200);
+      response = await routeTestRequest('versioned route 1')
+        .set({'Accept-version': '2.0.0'})
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(2000);
+      response = await routeTestRequest('versioned route 1')
+        .set({'Accept-version': '1.1.0'})
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(2000);
+      response = await routeTestRequest('versioned route 1')
+        .send({sum: 0})
+        .expect(200);
+      expect(response.body).to.haveOwnProperty('sum').that.eq(2000);
     });
   });
   describe('Static class methods', async function() {
@@ -651,6 +977,8 @@ describe('Class SuperRoute', async function () {
       values.forEach(value => {
         expect(SuperRoute.matchesType(value, 'any')).to.eq(true);
       })
+      // @ts-ignore
+      expect(SuperRoute.matchesType(123, 'something')).to.eq(false);
     });
   });
   describe('Route Help', function () {
@@ -665,15 +993,21 @@ describe('Class SuperRoute', async function () {
       console.log(str);
     });
     it('should return markdown info of route', async function () {
-      // routes.forEach(route => console.log(route.toMarkdown()));
-
-      console.log(routes[2].toMarkdown());
+      expect(function() {
+        // @ts-ignore
+        getRoute('get some').toMarkdown()
+      }).to.not.throw();
+      routes.forEach(route => {
+        expect(function() {
+          // @ts-ignore
+          route.toMarkdown()
+        }).to.not.throw();
+      });
     });
-    it('should return a markdown output of route socumentation', async function () {
+    it('should return a markdown output of route documentation', async function () {
       let response = await request(server)
         .options('/users/new ')
         .expect(200)
-
       console.log(response.error);
       console.log(response.body);
     });

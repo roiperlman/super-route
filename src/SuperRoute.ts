@@ -5,6 +5,10 @@ import {BodyParameter, ParameterType, RouteParameter} from "./RequestParameters"
 import {VersionRouter, VersionedRoute, VersionedMiddleware} from 'version-router-express';
 import {md} from "./md";
 
+/**
+ * response options
+ * @public
+ */
 export type SuccessResponse = 'message'|'Array'|'object'|'file'
 
 export type RouteHandler = (req: Request,
@@ -16,6 +20,10 @@ export type RouteHandler = (req: Request,
                             redirect?: string|false,
                               options?: {[key: string]: any}) => {};
 
+/**
+ * Configuration Object for SuperRoute instance
+ * @public
+ */
 export interface RouteSettings {
   /**
    * route path
@@ -98,7 +106,7 @@ export interface ErrorHandlerOptions {
 }
 
 /**
- * Base Class for an express route
+ * Base Class for an express route super route
  * Middleware order:
  * 1. Authentication function
  * 2. Access control
@@ -106,8 +114,9 @@ export interface ErrorHandlerOptions {
  * 4. Route Parameters validation
  * 5. Route Specific middleware defined in the middleware or versioned middleware arrays
  * @class
+ * @public
  */
-export default abstract class SuperRoute implements RouteSettings {
+export abstract class SuperRoute implements RouteSettings {
   path: string;
   verb: ExpressHttpVerb;
   responseContentType?: string;
@@ -133,6 +142,10 @@ export default abstract class SuperRoute implements RouteSettings {
     showHelp: false
   };
 
+  /**
+   * @hidden
+   * @param settings
+   */
   constructor(settings: RouteSettings) {
     Object.assign(this, SuperRoute.defaultSettings);
     Object.assign(this, settings);
@@ -141,6 +154,7 @@ export default abstract class SuperRoute implements RouteSettings {
   /**
    * mounts the route on a router instance or express app
    * @param router
+   * @public
    */
   mount(router: Router) {
     let middlewareFunctions: Array<RequestHandler> = [];
@@ -156,7 +170,7 @@ export default abstract class SuperRoute implements RouteSettings {
     // set access control
     if (this.permissions) {
       if (!this.$$accessControlFunction) {
-        throw new Error('Access Control function not defined');
+        throw new Error(`Access Control function not defined for route ${this.path}`);
       } else {
         middlewareFunctions.push(this.$$accessControlFunction(this.permissions));
       }
@@ -181,7 +195,7 @@ export default abstract class SuperRoute implements RouteSettings {
           })
         })
       );
-      middlewareFunctions.push(versionRouter.routeRequestByVersion)
+      middlewareFunctions.push(versionRouter.routeRequestByVersion())
     } else {
       if (!Array.isArray(this.middleware)) {
         middlewareFunctions.push(this.middleware.bind(this));
@@ -209,6 +223,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * checks if the route or body param matches the specified type
    * @param value
    * @param type
+   * @hidden
    */
   static matchesType(value: any, type: ParameterType): boolean {
     if (type === 'any' || !type) { // if type is any or no type was defined return true
@@ -231,6 +246,7 @@ export default abstract class SuperRoute implements RouteSettings {
 
   /**
    * checks if the user has the permissions defined in the permissions object and according to the defined hierarchy
+   * For use with an access control function.
    * @param userPermissions
    * @param permissions
    * @param hierarchy
@@ -297,14 +313,15 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param next
    */
   static DefaultErrorHandler(err: RouteError|RouteErrorI, req: Request, res: Response, next: NextFunction) {
+    console.log('logging error',err);
     if (err) {
-      // console.log(err);
+      console.error(err);
       if (err.logError) console.error(err);
       res.status(err.statusCode ? err.statusCode : 500);
       if (err.redirect) {
         res.redirect(err.redirect);
       } else {
-        res.send(err.message);
+        res.send(err.respondWith ? err.respondWith : err.message);
       }
     }
   }
@@ -322,6 +339,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param req
    * @param res
    * @param next
+   * @hidden
    */
   protected validateBody(req: Request, res: Response, next: NextFunction) {
     const errors: Array<string> = [];
@@ -355,6 +373,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param req
    * @param res
    * @param next
+   * @hidden
    */
   protected validateRouteParams(req: Request, res: Response, next: NextFunction) {
     const errors: Array<string> = [];
@@ -386,6 +405,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param req
    * @param res
    * @param next
+   * @hidden
    */
   protected async help(req: Request, res: Response, next: NextFunction) {
     res.setHeader('Content-Type', 'text/plain');
@@ -393,15 +413,11 @@ export default abstract class SuperRoute implements RouteSettings {
   }
 
   /**
-   *
+   * Generates markdown documentation for hte route
    */
   toMarkdown() {
     let tables;
-    try {
-      tables = this.generateTables()
-    } catch (err) {
-      throw err;
-    }
+    try { tables = this.generateTables() } catch (err) { throw err; }
     console.log(this);
     let md;
     try {
@@ -410,16 +426,15 @@ export default abstract class SuperRoute implements RouteSettings {
         tables: tables
       })
     } catch (e) {
-      console.log(e);
       throw(e);
     }
-    console.log(md);
     return md;
   }
 
   /**
    * generates tables
    * @protected
+   * @hidden
    */
   protected generateTables(): {
     bodyParamsTable: string,
@@ -491,7 +506,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param statusCode - http status code for response
    * @param redirect - optional redirect
    * @param logError
-   * @constructor
+   * @hidden
    */
   Error(message: string, statusCode: number = 500, redirect: string|false = this.redirectOnError, logError: boolean = false): RouteError {
     return new RouteError(message, statusCode, redirect, logError);
@@ -510,6 +525,7 @@ export default abstract class SuperRoute implements RouteSettings {
    * @param log - log the error to the console if true
    * @param redirect - redirect url
    * @param options - options object to pass to a custom error handler
+   * @hidden
    */
   handleError(req: Request,
               res: Response,
@@ -528,7 +544,6 @@ export default abstract class SuperRoute implements RouteSettings {
     } else {
       err = this.Error(errorOrMessage, statusCode, redirect);
     }
-
     if (this.errorHandlerOptions) {
       options = this.errorHandlerOptions;
     }
@@ -627,7 +642,11 @@ export interface srErrorHandlerFunction extends ErrorRequestHandler {
    options: { [key: string]: any }): void;
 }
 
+/**
+ * Available http verbs for super-route settings object
+ */
 export type ExpressHttpVerb = 'get'|'post'|'put'|'head'|'delete'|'options'|'trace'|'copy'|'lock'|'mkcol'|'move'|'purge'|'propfind'|'proppatch'|'unlock'|'report'|'mkactivity'|'checkout'|'merge'|'m-search'|'notify'|'subscribe'|'unsubscribe'|'patch'|'search'|'connect';
+
 export const AvailableVerbs: Array<ExpressHttpVerb> = [
   'get',
   'post',

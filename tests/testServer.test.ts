@@ -4,7 +4,8 @@ import * as bodyParser from "body-parser";
 import morgan from "morgan";
 import * as path from "path";
 import {Router} from 'express'
-import SuperRoute from "../src/SuperRoute";
+import {SuperRoute} from "../src";
+import {VersionedRoute, VersionRouter} from "version-router-express";
 export const router = Router();
 export const server = Express();
 
@@ -14,6 +15,16 @@ export function configServer(routes: Array<SuperRoute>, middleware?: Array<Reque
   server.use(bodyParser.urlencoded({'extended':true}));            // parse application/x-www-form-urlencoded
   server.use(bodyParser.json({limit : '20mb'}));                                     // parse application/json
   server.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
+  server.use(function(req: Request, res: Response, next: NextFunction) {
+    if (req.header('User')) {
+      // @ts-ignore
+      req.user = JSON.parse(req.header('User') as string);
+      return next()
+    } else {
+      next()
+    }
+  });
+  server.use(VersionRouter.ExtractVersionFromHeader('Accept-version')); // parse application/vnd.api+json as json
   routes.forEach(route => {
     console.log('mounting route', route.name)
     route.mount(router)
@@ -24,15 +35,16 @@ export function configServer(routes: Array<SuperRoute>, middleware?: Array<Reque
       server.use(m);
     })
   }
+
 }
 export function listen(port: number): Promise<http.Server> {
-  return new Promise(async (resolve, reject) => {
-    let s = server.listen(port, (err, httpServer) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(s)
-      }
-    });
+  return new Promise<http.Server>(async (resolve, reject) => {
+    let s;
+    try {
+      s = server.listen(port);
+    } catch (err) {
+      return reject(err);
+    }
+    resolve(s)
   });
 }

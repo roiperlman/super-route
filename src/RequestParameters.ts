@@ -28,7 +28,6 @@ abstract class RequestParameter {
  */
 export class BodyParameter extends RequestParameter {
   type: ParameterType;
-
   /**
    * Constructs a BodyParameter instance
    * @constructor
@@ -64,10 +63,7 @@ export class RouteParameter extends RequestParameter {
    * @param description - text that will be displayed in the rendered help output
    * @param additionalTests - an array of additional test functions and their description
    */
-  constructor(name: string,
-              description: string = '',
-              required: boolean = true,
-              additionalTests: Array<RequestParameterTestFunction> = []) {
+  constructor(name: string, description: string = '', required: boolean = true, additionalTests: Array<RequestParameterTestFunction> = []) {
     super();
     this.name = name;
     this.required = required;
