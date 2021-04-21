@@ -4,7 +4,7 @@ Creates or updates an existing user
 ___
 Creates a new user. if the user exists and upsert is set to true, will update the user. if set to false and user exists, will return an error
 
-###Route Details:
+### Route Details:
 
 * Authenticated: ✅
 
@@ -19,17 +19,17 @@ Creates a new user. if the user exists and upsert is set to true, will update th
 
 * Redirect on error:
 
-###Access Control:
+### Access Control:
 ___
 |  Equal or Greater than | Specific permissions | Merge rule  |
 |  --- | --- | ---  |
 | admin  |  awesomePerson  |  and |
-###Route Parameters:
+### Route Parameters:
 ___
 |  Name | Description | Required | AdditionalTests  |
 |  --- | --- | --- | ---  |
 | upsert  |  set upsert true or false to update user if it exists  |  `true`  |  <li> Value must be either "true" or "false" |
-###Body Parameters:
+### Body Parameters:
 ___
 |  Name | Description | Type | Required | AdditionalTests  |
 |  --- | --- | --- | --- | ---  |

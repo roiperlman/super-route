@@ -685,7 +685,7 @@ export class Templates {
 ___
 <% if(route.comments){ %> <%= route.comments %> <% } %>
 
-###Route Details:
+### Route Details:
 
 * Authenticated: <% if(route.authenticate){ %>✅<% } %><% if(!route.authenticate) { %>❌<% } %>
 
@@ -700,10 +700,10 @@ ___
 ###Access Control:
 ___
 <%- tables.permissionsTable %>
-###Route Parameters:
+### Route Parameters:
 ___
 <%- tables.routeParamsTable %>
-###Body Parameters:
+### Body Parameters:
 ___
 <%- tables.bodyParamsTable %>
 

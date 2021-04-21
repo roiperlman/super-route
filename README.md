@@ -1,12 +1,10 @@
 # SuperRoute
 Non-pretentious, Mildly-opinionated  Express Framework
 
-[comment]: <> ([![Build Status]&#40;https://travis-ci.org/roiperlman/express-version-router.svg?branch=master&#41;]&#40;https://travis-ci.org/roiperlman/express-version-router&#41;)
-
-[comment]: <> ([![Coverage Status]&#40;https://coveralls.io/repos/github/roiperlman/express-version-router/badge.svg?branch=master&#41;]&#40;https://coveralls.io/github/roiperlman/express-version-router?branch=master&#41;)
-
-[comment]: <> ([![Install Sizze]&#40;https://badgen.net/packagephobia/publish/version-router-express&#41;]&#40;hhttps://packagephobia.com/result?p=version-router-express&#41;)
-
+[![Build Status](https://travis-ci.org/roiperlman/super-route.svg?branch=master)](https://travis-ci.org/roiperlman/super-route)
+[![Coverage Status](https://coveralls.io/repos/github/roiperlman/super-route/badge.svg?branch=master)](https://coveralls.io/github/roiperlman/super-route?branch=master)
+[![Install Size](https://badgen.net/packagephobia/publish/super-route)](hhttps://packagephobia.com/result?p=super-route)
+[![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route)](https://packagephobia.com/result?p=super-route)
 ___
  
 `SuperRoute` is a framework for building readable api routes,
