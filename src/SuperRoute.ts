@@ -143,7 +143,6 @@ export abstract class SuperRoute implements RouteSettings {
   };
 
   /**
-   * @hidden
    * @param settings
    */
   constructor(settings: RouteSettings) {
@@ -172,7 +171,7 @@ export abstract class SuperRoute implements RouteSettings {
       if (!this.$$accessControlFunction) {
         throw new Error(`Access Control function not defined for route ${this.path}`);
       } else {
-        middlewareFunctions.push(this.$$accessControlFunction(this.permissions));
+        middlewareFunctions.push(this.$$accessControlFunction(this.permissions).bind(this));
       }
     }
     // set validation functions
@@ -321,7 +320,7 @@ export abstract class SuperRoute implements RouteSettings {
       if (err.redirect) {
         res.redirect(err.redirect);
       } else {
-        res.send(err.respondWith ? err.respondWith : err.message);
+        res.send(err.response ? err.response : err.message);
       }
     }
   }
@@ -600,8 +599,8 @@ export abstract class SuperRoute implements RouteSettings {
  * Example:
  *
  * {
- *   equalOrGreaterThan: 'admin';
- *   specific: ['specialPermission', 'awesomeDude'];
+ *   equalOrGreaterThan: 'admin',
+ *   specific: ['specialPermission', 'awesomeDude'],
  *   merge: 'and'
  * }
  * will only grant access to admins that also have the specialPermission and awesomeDude permisions

@@ -73,9 +73,7 @@ export class RouteParameter extends RequestParameter {
 }
 
 /**
- * An object containing:
- * test: a test function that receives the parameter value as an argument and returns a boolean
- * description: an optional description of the test that will be displayed in the error output in case the function returns false
+ * A test function and test description for testing request parameters
  */
 export interface RequestParameterTestFunction {
   /**
@@ -84,7 +82,7 @@ export interface RequestParameterTestFunction {
    */
   test(value: any): boolean;
   /**
-   * test description - will appear in error messages and dcumentation
+   * an optional description of the test that will be displayed in the error output in case the function returns false
    */
   description: string;
 }

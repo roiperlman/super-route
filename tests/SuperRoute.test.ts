@@ -247,7 +247,7 @@ export const routes: Array<TestRoute> = [
     middleware: [
       function (req: Request, res: Response, next: NextFunction) {
         if (req.body.throwError) {
-          TestRoute.HandleError(this)(req, res, next, 'throwError was true', 500, true)
+          TestRoute.HandleError(this)(req, res, next, 'throwError was true', 500)
         } else {
           res.status(200).send({user: 'Ok'})
         }
@@ -267,7 +267,7 @@ export const routes: Array<TestRoute> = [
     middleware: [
       function (req: Request, res: Response, next: NextFunction) {
         if (req.body.throwError) {
-          TestRoute.HandleError(this)(req, res, next, 'throwError was true', 500, true)
+          TestRoute.HandleError(this)(req, res, next, 'throwError was true', 500)
         } else {
           res.status(200).send({user: 'Ok'})
         }
@@ -300,6 +300,7 @@ export const routes: Array<TestRoute> = [
     name: 'handle with this.handle',
     description: 'handles error with this.handle',
     authenticate: true,
+    errorHandlerOptions: {somekey: 'some value'},
     bodyParams: [
       new BodyParameter('throwError', 'boolean', 'will throw error if true', true)
     ],
@@ -607,6 +608,7 @@ describe('Class SuperRoute', async function () {
           firstName: 'first',
           lastName: 'last',
           isAdmin: true,
+          age: 20
         })
         .expect(400);
     });
@@ -621,6 +623,7 @@ describe('Class SuperRoute', async function () {
           age: 35
         })
         .expect(400);
+      console.log(response.error);
       expect(response.error.text.split('\n')).to.have.length(1);
       response = await routeTestRequest('new user')
         .send({
@@ -968,6 +971,14 @@ describe('Class SuperRoute', async function () {
             .to.eq(option.expected)
         })
       }
+    });
+    it('static permissions check method should return error when permissions configuration is missing properties ', async function () {
+      expect(function() {
+        // @ts-ignore
+        SuperRoute.checkPermissions(['admin'], {
+          merge: 'and'
+        })
+      }).to.throw('Missing configuration in permissions object. should contain a least one rule')
     });
     it('should return false when parameter has the wrong type, true when correct type or when type is any', async function () {
       for (let i = 0; i < types.length - 2; i++) {
