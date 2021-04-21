@@ -1,4 +1,4 @@
-#SuperRoute
+# SuperRoute
 Non-pretentious, Mildly-opinionated  Express Framework
 
 [comment]: <> ([![Build Status]&#40;https://travis-ci.org/roiperlman/express-version-router.svg?branch=master&#41;]&#40;https://travis-ci.org/roiperlman/express-version-router&#41;)
@@ -12,7 +12,7 @@ ___
 `SuperRoute` is a framework for building readable api routes,
 aimed at improving code re-usability, code readability and route documentation.
 
-###Main Features:
+### Main Features:
 
 * Built in request **[input validation](#Input-Validation)**
 * Simple yet fine-grained **[access control management](#Access-Control)**
@@ -32,10 +32,10 @@ import:
 import {SuperRoute} from 'super-route';
 ```
 
-##Usage
+## Usage
 
 ---
-####Create a new route class that extends `SuperRoute`.
+#### Create a new route class that extends `SuperRoute`.
 You can create classes for specific route types or groups - e.g. routes that
 require authentication, access control, or share data with the middleware.
 
@@ -443,8 +443,8 @@ const route = new SuperRoute({
 | `description` | *string* | Route description | `fasle`|
 | `middleware` | *RequestHandler[]* | Route Middleware |`fasle` |
 | `versionedMiddleware` | *VersionedMiddleware[]* | An Array of VersionedMiddleware instances - see [https://www.npmjs.com/package/version-router-express](https://www.npmjs.com/package/version-router-express) |`fasle` |
-| `bodyParams` |  [*BodyParameter*]()[]* | An Array of BodyParameter instances, defining required and/or optional parameters for request body as well as input validation tests | `fasle`|
-| `routeParams` |  [*RouteParameter*]()[]* | An Array of RouteParameter instances, defining the types and validation rules for route parameters | `fasle`|
+| `bodyParams` |  [*BodyParameter*]()[] | An Array of BodyParameter instances, defining required and/or optional parameters for request body as well as input validation tests | `fasle`|
+| `routeParams` |  [*RouteParameter*]()[] | An Array of RouteParameter instances, defining the types and validation rules for route parameters | `fasle`|
 | `authenticate` | *boolean* | When true, will mount the authentication function as middleware before other routes | `fasle`|
 | `permissions` | [*RoutePermissions*](routepermissions.md) | A RoutePermissions object for use with the package's standard access control function | `fasle`|
 | `responseContentType` | *string* | response content type - used to set headers | `false` |

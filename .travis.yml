@@ -4,5 +4,11 @@ node_js:
 script:
   - npm test
   - npm run coveralls
-#notifications:
-#  webhooks: https://coveralls.io/webhook
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+jobs:
+  include:
+    - script: COVERALLS_FLAG_NAME=test-1 npm run coveralls
+notifications:
+  webhooks: https://coveralls.io/webhook
