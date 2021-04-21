@@ -415,7 +415,6 @@ export abstract class SuperRoute implements RouteSettings {
   toMarkdown() {
     let tables;
     try { tables = this.generateTables() } catch (err) { throw err; }
-    console.log(this);
     let md;
     try {
       md = ejs.render(Templates.routeInfoMarkdown, {
