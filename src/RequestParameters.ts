@@ -16,7 +16,7 @@ abstract class RequestParameter {
     this.additionalTests.forEach((paramTest, index) => {
       let result = paramTest.test(value);
       if (!result) {
-        errors.push(`Parameter '${this.name}' did not pass test '${paramTest.description ? paramTest.description : index}'`)
+        errors.push(`Parameter '${this.name}' did not pass test '${paramTest.description ? paramTest.description : index}'`);
       }
     });
     return errors;

@@ -1,5 +1,5 @@
 {
-  "name": "@roip/super-route",
+  "name": "super-route",
   "version": "1.0.0",
   "description": "Non pretentious express framework",
   "homepage": "https://github.com/roiperlman/super-route#readme",

@@ -312,6 +312,26 @@ export const routes: Array<TestRoute> = [
     ]
   }),
   new TestRoute({
+    path: 'handleWithThisHandleDefault',
+    verb: 'post',
+    name: 'handle with this.handle default',
+    description: 'handles error with this.handle',
+    authenticate: true,
+    errorHandlerOptions: {somekey: 'some value'},
+    bodyParams: [
+      new BodyParameter('throwError', 'boolean', 'will throw error if true', true)
+    ],
+    middleware: [
+      function (req: Request, res: Response, next: NextFunction) {
+        if (req.body.throwError) {
+          this.handle(arguments, new Error('some error'));
+        } else {
+          res.status(200).send({user: 'Ok'})
+        }
+      }
+    ]
+  }),
+  new TestRoute({
     path: 'versioned1',
     verb: 'post',
     name: 'versioned route 1',
@@ -771,6 +791,12 @@ describe('Class SuperRoute', async function () {
         .expect(402);
       expect(response.error.text).to.eq('custom response');
     });
+    it('should handle error with this.handle', async function () {
+      let response = await routeTestRequest('handle with this.handle default')
+        .send({throwError: true})
+        .expect(402);
+      expect(response.error.text).to.eq('custom response');
+    });
     it('should redirect to defined path on error', async function () {
       let response = await routeTestRequest('handle with static redirect')
         .send({throwError: true})
@@ -839,6 +865,7 @@ describe('Class SuperRoute', async function () {
       null,
     ];
     it('should return true when users permissions match the provided spec', async function () {
+
       const permissionOptions: {[key: string]: Array<{
           routePermission: RoutePermissions,
           userPermissions: Array<string>,
@@ -1001,7 +1028,8 @@ describe('Class SuperRoute', async function () {
               specific: ['editor'],
               merge: 'and'
             },
-            userPermissions: ['editor'],
+            // @ts-ignore
+            userPermissions: 'editor',
             expected: false
           },
           {
