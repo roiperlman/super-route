@@ -794,8 +794,8 @@ describe('Class SuperRoute', async function () {
     it('should handle error with this.handle', async function () {
       let response = await routeTestRequest('handle with this.handle default')
         .send({throwError: true})
-        .expect(402);
-      expect(response.error.text).to.eq('custom response');
+        .expect(500);
+      expect(response.error.text).to.eq('some error');
     });
     it('should redirect to defined path on error', async function () {
       let response = await routeTestRequest('handle with static redirect')
