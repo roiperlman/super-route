@@ -12,4 +12,4 @@ docs/
 docs
 /docs/
 lib
-tsconfig.tsbuildinfo
+/*.tsbuildinfo
