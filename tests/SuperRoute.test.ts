@@ -637,6 +637,10 @@ describe('Class SuperRoute', async function () {
     });
   });
   describe('Body Parameters Validation', async function() {
+    it('should create a default body parameter', async function () {
+      const p = new BodyParameter('name');
+      expect(p.type).to.eq('any');
+    });
     it('should mount a route with body parameters and make a successful request', async function () {
       userAuthState = true;
       let response = await routeTestRequest('new user')
@@ -713,6 +717,10 @@ describe('Class SuperRoute', async function () {
     });
   });
   describe('Route Parameters Validation', function () {
+    it('should create a default route parameter', async function () {
+      const p = new RouteParameter('name');
+      expect(p.required).to.eq(true);
+    });
     it('should make a request with route params and error when they dont meet spec', async function () {
       userAuthState = true;
       await request(server)
