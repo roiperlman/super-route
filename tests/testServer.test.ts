@@ -26,7 +26,6 @@ export function configServer(routes: Array<SuperRoute>, middleware?: Array<Reque
   });
   server.use(VersionRouter.ExtractVersionFromHeader('Accept-version')); // parse application/vnd.api+json as json
   routes.forEach(route => {
-    console.log('mounting route', route.name)
     route.mount(router)
   });
   server.use('/', router);

@@ -67,8 +67,6 @@ export class TestRoute extends SuperRoute {
 
   $$accessControlFunction: AccessControlFunction = (permissions: RoutePermissions) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-      // @ts-ignore
-      console.log('user:',req.user);
       let auth;
       try {
         // @ts-ignore
@@ -327,9 +325,6 @@ export const routes: Array<TestRoute> = [
         default: false,
         middleware: [
           (req: Request, res: Response, next: NextFunction) => {
-            console.log(123245);
-            // @ts-ignore
-            console.log(req['version']);
             req.body.sum += 10;
             next()
           },
@@ -693,7 +688,6 @@ describe('Class SuperRoute', async function () {
           age: 35
         })
         .expect(400);
-      console.log(response.error);
       expect(response.error.text.split('\n')).to.have.length(1);
       response = await routeTestRequest('new user')
         .send({
@@ -1063,15 +1057,15 @@ describe('Class SuperRoute', async function () {
     });
   });
   describe('Route Help', function () {
-    it('should return generate a markdown table from array', async function () {
+    it('should generate a markdown table from array', async function () {
       const str = md.generateTable(
         [
           ['Equal or Greater than', 'Specific permissions', 'Merge rule'],
           [ 'aaa', 'bbb', 'ccc' ],
           [ '😡😡😡', '🥨🥨🥨', '🚙🚙🚙']
         ]
-      )
-      console.log(str);
+      );
+      expect(str).to.be.a('string');
     });
     it('should return markdown info of route', async function () {
       expect(function() {
@@ -1084,15 +1078,11 @@ describe('Class SuperRoute', async function () {
           route.toMarkdown()
         }).to.not.throw();
       });
-      // @ts-ignore
-      console.log(getRoute('Create or upsert user').toMarkdown());
     });
     it('should return a markdown output of route documentation', async function () {
       let response = await request(server)
         .options('/users/new ')
         .expect(200)
-      console.log(response.error);
-      console.log(response.body);
     });
   });
 });

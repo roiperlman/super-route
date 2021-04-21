@@ -312,9 +312,7 @@ export abstract class SuperRoute implements RouteSettings {
    * @param next
    */
   static DefaultErrorHandler(err: RouteError|RouteErrorI, req: Request, res: Response, next: NextFunction) {
-    console.log('logging error',err);
     if (err) {
-      console.error(err);
       if (err.logError) console.error(err);
       res.status(err.statusCode ? err.statusCode : 500);
       if (err.redirect) {
