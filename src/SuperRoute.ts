@@ -465,6 +465,7 @@ export abstract class SuperRoute implements RouteSettings {
         ...this.routeParams.map(p => [
           p.name,
           p.description,
+          `\`${p.required}\``,
           md.generateList(p.additionalTests.map(t => t.description))
         ])
       ]);
@@ -484,7 +485,8 @@ export abstract class SuperRoute implements RouteSettings {
         ...this.bodyParams.map(p => [
           p.name,
           p.description,
-          p.type,
+          `\`${p.type}\``,
+          `\`${p.required}\``,
           md.generateList(p.additionalTests.map(t => t.description))
         ])
       ]);
@@ -681,7 +683,7 @@ export class Templates {
 ###### <%= route.verb.toUpperCase() %> <%= route.path %>
 <%= route.description %>
 ___
-<% if(route.comments){ %>route.comments<% } %>
+<% if(route.comments){ %> <%= route.comments %> <% } %>
 
 ###Route Details:
 
@@ -693,7 +695,7 @@ ___
 
 * Response Format: <% if(route.responseFormat){ %>\`<%= route.responseFormat || '' %>\`<% } %><% if(!route.permissions){ %>''<% } %>
 
-* Redirect on error: <% if(route.redirectOnError){ %>\`<%= route.redirectOnError || '' %>\`<% } %><% if(!route.redirectOnError){ %>''<% } %>
+* Redirect on error: <% if(route.redirectOnError){ %>\`<%= route.redirectOnError || '' %>\`<% } %>
 
 ###Access Control:
 ___

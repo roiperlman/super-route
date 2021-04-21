@@ -322,7 +322,9 @@ fs.writeFileSync('routes.md', RoutesArray.map(route => route.toMarkdown()).join(
 ```
 Here's an example of a route that uses all features available for documentation.
 
-You can see the resulting markdown output **[here]()**.
+
+
+You can see the resulting markdown output **[here](https://github.com/roiperlman/super-route/blob/master/etc/route_info_example.md)**.
 
 
 #### View Documentation in terminal
