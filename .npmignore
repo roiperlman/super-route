@@ -1,3 +1,8 @@
 /src
 /tests
 tsconfig.json
+docsS
+/docs
+.nyc_output/
+etc
+./.travis.yml
