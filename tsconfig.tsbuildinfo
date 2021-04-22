@@ -137,7 +137,7 @@
         "affectsGlobalScope": true
       },
       "./src/requestparameters.ts": {
-        "version": "40c1aeda89b860aadd2a1b69e8eb5a756e74a54a2a1fb3db9d7d167755b23420",
+        "version": "52ba8b5703a167a64805d5a369d68a9678527e4f063d5b361bc366bc06ed30b0",
         "signature": "de0ba8c50b7648c88fe4d4b4c5f1eb24e0c239949f50a5a001e0d20b0ba54f92",
         "affectsGlobalScope": false
       },
@@ -456,7 +456,7 @@
         "signature": "8d77ed4e39114c32edc2e35b683b6f54a6b3292ecdf392e4bfc5f726734955d8",
         "affectsGlobalScope": false
       },
-      "./node_modules/@types/mocha/index.d.ts": {
+      "./node_modules/@types/mocha (1)/index.d.ts": {
         "version": "0359800d3b440f8515001431cde1500944e156040577425eb3f7b80af0846612",
         "signature": "0359800d3b440f8515001431cde1500944e156040577425eb3f7b80af0846612",
         "affectsGlobalScope": true
@@ -491,7 +491,6 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "extendedDiagnostics": true,
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
@@ -1076,7 +1075,7 @@
       "./node_modules/@types/express-serve-static-core/index.d.ts",
       "./node_modules/@types/express/index.d.ts",
       "./node_modules/@types/mime/index.d.ts",
-      "./node_modules/@types/mocha/index.d.ts",
+      "./node_modules/@types/mocha (1)/index.d.ts",
       "./node_modules/@types/morgan/index.d.ts",
       "./node_modules/@types/node/assert.d.ts",
       "./node_modules/@types/node/async_hooks.d.ts",
