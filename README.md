@@ -21,12 +21,12 @@ aimed at improving code re-usability, code readability and route documentation.
 ## Installation
 ***
 ```
-npm install --save super-route
+npm install --save super-route-express
 ```
 
 import:
 ```typescript
-import {SuperRoute} from 'super-route';
+import {SuperRoute} from 'super-route-express';
 ```
 
 ## Usage
@@ -37,7 +37,7 @@ You can create classes for specific route types or groups - e.g. routes that
 require authentication, access control, or share data with the middleware.
 
 ```typescript
-import {SuperRoute} from 'super-route';
+import {SuperRoute} from 'super-route-express';
 
 class BasicRoute extends SuperRoute {}
 
