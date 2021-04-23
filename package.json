@@ -29,7 +29,6 @@
   "dependencies": {
     "ejs": "^2.7.1",
     "express": "^4.17.1",
-    "markdown-table": "^3.0.0",
     "version-router-express": "^0.2.9"
   },
   "devDependencies": {
