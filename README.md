@@ -3,8 +3,8 @@ Non-pretentious, Mildly-opinionated  Express Framework
 
 [![Build Status](https://travis-ci.org/roiperlman/super-route.svg?branch=master)](https://travis-ci.org/roiperlman/super-route)
 [![Coverage Status](https://coveralls.io/repos/github/roiperlman/super-route/badge.svg?branch=master)](https://coveralls.io/github/roiperlman/super-route?branch=master)
-[![Install Size](https://badgen.net/packagephobia/publish/super-route-express)](hhttps://packagephobia.com/result?p=super-route-express)
-[![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route-express)](https://packagephobia.com/result?p=super-route-express)
+[![Install Size](https://badgen.net/packagephobia/publish/super-route-express)](https://packagephobia.com/result?p=super-route-express)
+[![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route-express)](https://badgen.net/bundlephobia/dependency-count/super-route-express)
  
 `SuperRoute` is a framework for building readable api routes,
 aimed at improving code re-usability, code readability and route documentation.
@@ -53,7 +53,7 @@ class AdminOnlyRoute extends AuthenticatedRoute {
 }
 ```
 #### Instantiate Routes
-A SuperRoute instance (and it's children's instances) is passed a [`RouteSettings`](#RouteSettings) configuration object.
+A SuperRoute instance (and it's children's instances) is passed a [`RouteSettings`](#Class:-RouteSettings) configuration object.
 Each route has a stack of request handlers that or bound the route as their `this` argument when calling `mount()`,
 it allows access to error handling methods as well as additional instance and class data that might be useful.   
 
