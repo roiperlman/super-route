@@ -1,5 +1,5 @@
 {
-  "name": "super-route",
+  "name": "super-route-express",
   "version": "1.0.0",
   "description": "Non pretentious express framework",
   "homepage": "https://github.com/roiperlman/super-route#readme",
@@ -20,7 +20,10 @@
   "keywords": [
     "express",
     "api",
-    "router"
+    "router",
+    "super-route",
+    "superroute",
+    "super route"
   ],
   "author": "Roi Perlman",
   "dependencies": {

@@ -3,8 +3,8 @@ Non-pretentious, Mildly-opinionated  Express Framework
 
 [![Build Status](https://travis-ci.org/roiperlman/super-route.svg?branch=master)](https://travis-ci.org/roiperlman/super-route)
 [![Coverage Status](https://coveralls.io/repos/github/roiperlman/super-route/badge.svg?branch=master)](https://coveralls.io/github/roiperlman/super-route?branch=master)
-[![Install Size](https://badgen.net/packagephobia/publish/super-route)](hhttps://packagephobia.com/result?p=super-route)
-[![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route)](https://packagephobia.com/result?p=super-route)
+[![Install Size](https://badgen.net/packagephobia/publish/super-route-express)](hhttps://packagephobia.com/result?p=super-route-express)
+[![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route-express)](https://packagephobia.com/result?p=super-route-express)
  
 `SuperRoute` is a framework for building readable api routes,
 aimed at improving code re-usability, code readability and route documentation.
@@ -216,13 +216,15 @@ or as a form of input validation to verify that the request reaching the middle 
 When mounted, the function is called with the route's permissions definitions.
 Example:
 
-`$$authenticationFunction`
-
 ```typescript
 class AuthenticatedRoute extends BasicRoute {
   authenticate: true;
-  $$authenticationFunction = function(permissions: Array<string>) {
-    
+  $$authenticationFunction = (req: Request, res: Response, next: NextFunction) => {
+    if (req.hasOwnProperty(user)) {
+      next();
+    } else {
+      this.handle(arguments, 'Not Authenticated', 400)
+    }
   }
 }
 ```
@@ -248,7 +250,7 @@ Pass an array of `BodyParameter` to the route's settings with the following argu
 | Name | Type | Default value | Description |
 | :------ | :------ | :------ | :------ |
 | `name` | *string* | - | property name |
-| `type` | [*ParameterType*](#Type:-ParameterType) | 'any' | the expected type of the parameter. if defined, will throw an error if the parameter's type doesn't match |
+| `type` | *[ParameterType](#ParameterType)* | 'any' | the expected type of the parameter. if defined, will throw an error if the parameter's type doesn't match |
 | `description` | *string* | '' | text that will be displayed in the rendered help output |
 | `required` | *boolean* | true | if true, will throw an error when the property is missing |
 | `additionalTests` | [*RequestParameterTestFunction*](#Interface:-RequestParameterTestFunction)[] | [] | an array of additional test functions and their description |
@@ -345,7 +347,7 @@ curl --request OPTIONS localhost:8080/path/to/route
 ### Route Versioning
 
 SuperRoute can also `VersionedMiddleware` objects to handle route versioning.
-See **[version-router-express]()** for further configuration details.
+See **[version-router-express](https://www.npmjs.com/package/version-router-express)** for further configuration details.
 
 **Example:** 
 
@@ -435,17 +437,17 @@ const route = new SuperRoute({
 ```
 | Name | Type |  Description | Required |
 | :------ | :------ | :------ | :------ |
-| `path` | [*ExpressHttpVerb*]() | Http Verb | `true` |
+| `path` | [*ExpressHttpVerb*](#ExpressHttpVerb) | Http Verb | `true` |
 | `verb` | *string* | Route path | `true` |
 | `name` | *string* | Route Name | `true` |
 | `comments` | *string* | Additional comments for documentation | `fasle` |
 | `description` | *string* | Route description | `fasle`|
 | `middleware` | *RequestHandler[]* | Route Middleware |`fasle` |
 | `versionedMiddleware` | *VersionedMiddleware[]* | An Array of VersionedMiddleware instances - see [https://www.npmjs.com/package/version-router-express](https://www.npmjs.com/package/version-router-express) |`fasle` |
-| `bodyParams` |  [*BodyParameter*]()[] | An Array of BodyParameter instances, defining required and/or optional parameters for request body as well as input validation tests | `fasle`|
-| `routeParams` |  [*RouteParameter*]()[] | An Array of RouteParameter instances, defining the types and validation rules for route parameters | `fasle`|
+| `bodyParams` |  [*BodyParameter*](#Class:-BodyParameter)[] | An Array of BodyParameter instances, defining required and/or optional parameters for request body as well as input validation tests | `fasle`|
+| `routeParams` |  [*RouteParameter*](#Class:-RouteParameter)[] | An Array of RouteParameter instances, defining the types and validation rules for route parameters | `fasle`|
 | `authenticate` | *boolean* | When true, will mount the authentication function as middleware before other routes | `fasle`|
-| `permissions` | [*RoutePermissions*](routepermissions.md) | A RoutePermissions object for use with the package's standard access control function | `fasle`|
+| `permissions` | [*RoutePermissions*](#Interface:-RoutePermissions) | A RoutePermissions object for use with the package's standard access control function | `fasle`|
 | `responseContentType` | *string* | response content type - used to set headers | `false` |
 | `errorHandlerOptions` | [*ErrorHandlerOptions*]() | Options that will be passed to the global error handler | |
 | `redirectOnError` | *string* | Optional redirect when error is handled by the route | `false` |
@@ -468,13 +470,13 @@ Middleware order:
 
 ### Implements
 
-* [*RouteSettings*](../interfaces/routesettings.md)
+* [*RouteSettings*](#Interface:-RouteSettings)
 
 ### Methods
 
 #### handle
 
-▸ **handle**(`middlewareArgs`: IArguments, `errorOrMessage`: *string* \| Error \| [*RouteError*](routeerror.md), `statusCode?`: *number*, `respondWith?`: *string*, `log?`: *boolean*, `redirect?`: *string* \| ``false``, `options?`: { [key: string]: *any*;  }): *void*
+▸ **handle**(`middlewareArgs`: IArguments, `errorOrMessage`: *string* \| Error \| [*RouteError*](#Class:-RouteError), `statusCode?`: *number*, `respondWith?`: *string*, `log?`: *boolean*, `redirect?`: *string* \| ``false``, `options?`: { [key: string]: *any*;  }): *void*
 
 **handles errors in the route's logic.**
 
@@ -497,7 +499,7 @@ by default, a RouteError object containing route and request data will be create
 
 #### checkPermissions
 
-▸ `Static`**checkPermissions**(`userPermissions`: *string* \| *string*[], `permissions`: [*RoutePermissions*](../interfaces/routepermissions.md), `hierarchy`: *string*[]): *boolean*
+▸ `Static`**checkPermissions**(`userPermissions`: *string* \| *string*[], `permissions`: [*RoutePermissions*](#Interface:-RoutePermissions), `hierarchy`: *string*[]): *boolean*
 
 checks if the user has the permissions defined in the permissions object and according to the defined hierarchy
 For use with an access control function.
@@ -546,7 +548,7 @@ ___
 
 ### DefaultErrorHandler
 
-▸ `Static`**DefaultErrorHandler**(`err`: [*RouteError*](routeerror.md) \| [*RouteErrorI*](../interfaces/routeerrori.md), `req`: *Request*<ParamsDictionary, any, any, ParsedQs, Record<string, any\>\>, `res`: *Response*<any, Record<string, any\>\>, `next`: NextFunction): *void*
+▸ `Static`**DefaultErrorHandler**(`err`: [*RouteError*](#Class:-RouteError) <br> RouteErrorI, `req`: *Request*<ParamsDictionary, any, any, ParsedQs, Record<string, any\>\>, `res`: *Response*<any, Record<string, any\>\>, `next`: NextFunction): *void*
 
 a default error handler to mount as the last middleware of the app
 
@@ -554,9 +556,9 @@ a default error handler to mount as the last middleware of the app
 
 | Name | Type |
 | :------ | :------ |
-| `err` | [*RouteError*](routeerror.md) | [*RouteErrorI*](../interfaces/routeerrori.md) |
-| `req` | *Request*<ParamsDictionary, any, any, ParsedQs, Record<string, any\>\> |
-| `res` | *Response*<any, Record<string, any\>\> |
+| `err` | [*RouteError*](#Class:-RouteError) <br> RouteErrorI |
+| `req` | *Request* |
+| `res` | *Response*|
 | `next` | NextFunction |
 
 **Returns:** *void*
@@ -569,7 +571,7 @@ Defines a parameter expected to be present in the request's body
 
 ### constructor
 
-**new BodyParameter**(`name`: *string*, `type?`: [*ParameterType*](), `description?`: *string*, `required?`: *boolean*, `additionalTests?`: [*RequestParameterTestFunction*](../interfaces/requestparametertestfunction.md)[]): [*BodyParameter*](bodyparameter.md)
+**new BodyParameter**(`name`: *string*, `type?`: [*ParameterType*](), `description?`: *string*, `required?`: *boolean*, `additionalTests?`: [*RequestParameterTestFunction*](#Interface:-RequestParameterTestFunction)[]): [*BodyParameter*](#Class:-BodyParameter)
 
 Constructs a BodyParameter instance
 
@@ -589,7 +591,7 @@ Defines a parameter expected to be present in the request's route
 
 ### constructor
  
-**new RouteParameter**(`name`: *string*, `description?`: *string*, `required?`: *boolean*, `additionalTests?`: [*RequestParameterTestFunction*](../interfaces/requestparametertestfunction.md)[]): [*RouteParameter*](routeparameter.md)
+**new RouteParameter**(`name`: *string*, `description?`: *string*, `required?`: *boolean*, `additionalTests?`: [*RequestParameterTestFunction*](#Interface: RequestParameterTestFunction)[]): [*RouteParameter*](#Interafce:-RouteParameter)
 
 Constructs a BodyParameter instance
 
@@ -658,5 +660,177 @@ Example:
 ```
 will only grant access to admins that also have the specialPermission and awesomeDude permisions
 
-## Type: ParameterType 
-Available type names (strings) for BodyParameter type validation - 'string' | 'number' | 'boolean' | 'object' | 'array' | 'parsableDateString' | 'null' | 'any';
+## Interface: ErrorHandlerOptions
+
+### Indexable
+
+▪ [key: *string*]: *any*
+
+### Properties
+
+### log
+
+• `Optional` **log**: *boolean*
+
+___
+
+### redirectOnError
+
+• `Optional` **redirectOnError**: *string*
+
+---
+
+## Class: RouteError
+
+A SuperRoute error with additional data
+* *Error*
+
+  ↳ **RouteError**
+
+### constructor
+
+\+ **new RouteError**(`message`: *string*, `statusCode`: *number*, `redirect?`: ``null`` \| *string* \| ``false``, `log?`: *boolean*): [*RouteError*](#Class:-RouteError)
+
+Constructs a RouteError instance
+
+#### Parameters:
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `message` | *string* | - | Error message |
+| `statusCode` | *number* | - | Http status code |
+| `redirect` | ``null`` *string* ``false`` | false | tells the error handler if it should redirect the request |
+| `log` | *boolean* | false | tells the error handler to log the error - use it to override the default logging behaviour for specific errors when needed. |
+
+**Returns:** [*RouteError*](#Class:-RouteError)
+
+### Properties
+
+### logError
+
+• **logError**: *boolean*
+___
+
+### message
+Error message 
+
+• **message**: *string*
+
+Inherited from: Error.message
+___
+
+### redirect
+Tells the error handler if it should redirect the request
+
+• **redirect**: *string* \| ``false``
+___
+
+### requestPath
+The path of the request that invoked the route that where the error was thrown
+
+• `Optional` **requestPath**: *string*
+
+___
+
+### response
+Optional response to replace the error message when sent to the user
+• `Optional` **response**: *string*
+
+___
+
+### route
+The path of the route where the error was thrown
+
+• `Optional` **route**: *string*
+
+___
+
+### statusCode
+
+Response status code
+
+• **statusCode**: *number*
+
+___
+
+### Methods
+
+### handle
+Handles a RouteError with the data of the given route.
+Example:
+```typescript
+new RouteError('SomeError', 400, null, true).handle(this, req, res, next);
+```
+▸ **handle**(`route`: SuperRoute, `req`: *Request*, `res`: *Response*, `next`: NextFunction): *void*
+
+#### Parameters:
+
+| Name | Type |
+| :------ | :------ |
+| `route` | *any* |
+| `req` | *Request*<ParamsDictionary, any, any, ParsedQs, Record<string, any\>\> |
+| `res` | *Response*<any, Record<string, any\>\> |
+| `next` | NextFunction |
+
+**Returns:** *void*
+
+Defined in: src/RouteError.ts:66
+
+___
+
+### respondWith
+Attach a custom response to the RouteError object
+
+▸ **respondWith**(`response`: *string*): [*RouteError*](#Class:-RouteError)
+
+#### Parameters:
+
+| Name | Type |
+| :------ | :------ |
+| `response` | *string* |
+
+**Returns:** [*RouteError*](#Class:-RouteError)
+
+Defined in: src/RouteError.ts:61
+
+___
+
+### FromError
+Generate a RouteError instance from a vanilla `Error` instance.
+
+▸ `Static`**FromError**(`err`: Error, `statusCode`: *number*, `redirect?`: ``null`` \| *string* \| ``false``, `log?`: *boolean*): [*RouteError*](#Class:-RouteError)
+
+#### Parameters:
+
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `err` | Error | - |
+| `statusCode` | *number* | - |
+| `redirect` | ``null`` <br> *string* <br> ``false`` | false |
+| `log` | *boolean* | false |
+
+**Returns:** [*RouteError*](#Class:-RouteError)
+
+
+## Type aliases
+
+### ExpressHttpVerb
+Available http verbs for super-route settings object
+
+Ƭ **ExpressHttpVerb**: ``"get"`` \| ``"post"`` \| ``"put"`` \| ``"head"`` \| ``"delete"`` \| ``"options"`` \| ``"trace"`` \| ``"copy"`` \| ``"lock"`` \| ``"mkcol"`` \| ``"move"`` \| ``"purge"`` \| ``"propfind"`` \| ``"proppatch"`` \| ``"unlock"`` \| ``"report"`` \| ``"mkactivity"`` \| ``"checkout"`` \| ``"merge"`` \| ``"m-search"`` \| ``"notify"`` \| ``"subscribe"`` \| ``"unsubscribe"`` \| ``"patch"`` \| ``"search"`` \| ``"connect"``
+___
+
+### ParameterType
+
+Ƭ **ParameterType**: ``"string"`` \| ``"number"`` \| ``"boolean"`` \| ``"object"`` \| ``"array"`` \| ``"parsableDateString"`` \| ``"null"`` \| ``"any"``
+
+Optional types for a body parameter
+
+Defined in: src/RequestParameters.ts:93
+
+___
+
+### SuccessResponse
+response options
+
+Ƭ **SuccessResponse**: ``"message"`` \| ``"Array"`` \| ``"object"`` \| ``"file"``
