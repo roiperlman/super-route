@@ -5,7 +5,7 @@ Non-pretentious, Mildly-opinionated  Express Framework
 [![Coverage Status](https://coveralls.io/repos/github/roiperlman/super-route/badge.svg?branch=master)](https://coveralls.io/github/roiperlman/super-route?branch=master)
 [![Install Size](https://badgen.net/packagephobia/publish/super-route-express)](https://packagephobia.com/result?p=super-route-express)
 [![Dependency Count](https://badgen.net/bundlephobia/dependency-count/super-route-express)](https://badgen.net/bundlephobia/dependency-count/super-route-express)
-
+ 
 `SuperRoute` is a framework for building readable api routes,
 aimed at improving code re-usability, code readability and route documentation.
 
@@ -55,7 +55,7 @@ class AdminOnlyRoute extends AuthenticatedRoute {
 #### Instantiate Routes
 A SuperRoute instance (and it's children's instances) is passed a <a href="#Class:-RouteSettings">`RouteSettings`</a> configuration object.
 Each route has a stack of request handlers that or bound the route as their `this` argument when calling `mount()`,
-it allows access to error handling methods as well as additional instance and class data that might be useful.
+it allows access to error handling methods as well as additional instance and class data that might be useful.   
 
 See the Api section blow for full options.
 
@@ -122,14 +122,14 @@ routes.forEach(route => route.mount(router));
 ### Access Control
 ___
 SuperRoute offers two levels of access control that can be defined in the extending class.
-#### 1. Access Control function
+#### 1. Access Control function  
 
 Defined by the `$$accessControlFunction` property, it is used to limit access to users with defined permissions,
 using the route's `permissions` settings.
 
 **Setting Route Permissions**
 
-Use a RoutePermissions object to configure access control
+Use a RoutePermissions object to configure access control 
 for a route instance or extending class with the following options.
 
 * `equalOrGreaterThan` - requester must have a permission level that is equal or greater
@@ -176,11 +176,11 @@ class AdminOnlyRoute extends SuperRoute {
 **Configure Access Control function**
 
 * Assign an [`AccessControlFunction`](#Interface:-AccessControlFunction) to the `$$accessControlFunction` in the class definition.
-  When mounted, it will be called with the route's permissions and should return a `RequestHandler`.
+When mounted, it will be called with the route's permissions and should return a `RequestHandler`.
 * Use the static method [`SuperRoute.checkPermissions`](#checkPermissions) to validate the user's permissions.
-  note that `checkPermissions`receives a hierarchy Array in which the item with the largest index is the highest in the hierarchy.
+note that `checkPermissions`receives a hierarchy Array in which the item with the largest index is the highest in the hierarchy.
 * Also note that if the route's permissions are not defined by the class or it's instances, `$$accessControlFunction`
-  will not be called.
+will not be called.
 ```typescript
 class AuthenticatedRoute extends SuperRoute {
   $$accessControlFunction: AccessControlFunction = (permissions: RoutePermissions) => {
@@ -230,11 +230,11 @@ class AuthenticatedRoute extends BasicRoute {
 ```
 ### Input Validation
 ___
-SuperRoute offers both route parameters and body validation.
+SuperRoute offers both route parameters and body validation. 
 Route parameters and properties of the request's body can be defined in the route settings, serving both the purpose
 of input validation and route documentation generation.
 
-Input that doesn't meet the defined spec will return a detailed error and 400 status code.
+Input that doesn't meet the defined spec will return a detailed error and 400 status code. 
 
 #### ***Body Validation***
 ```typescript
@@ -267,7 +267,7 @@ new BodyParameter('mobilePhone', 'string', 'user mobile phone', true, [
   }
 ])
 ```
-All validation errors are combined and returned.
+All validation errors are combined and returned.  
 
 #### ***Route Parameters Validation***
 ```typescript
@@ -307,12 +307,12 @@ from any of the middleware functions, with following parameters:
 
 It will construct a <a href="#RouteError">`RouteError`</a> object and pass it to `next()`.
 
-It's also possible to just pass a vanilla Error object to next, but handling with RouteError
+It's also possible to just pass a vanilla Error object to next, but handling with RouteError 
 
 
 ### Generate Route Documentation
 ___
-Route information, including body / route parameters and their validation rules can be exported.
+Route information, including body / route parameters and their validation rules can be exported. 
 #### Export to markdown
 call `toMarkdown()` method on any route to generate documentation.
 Optionally, on an array of routes:
@@ -331,7 +331,7 @@ You can see the resulting markdown output **[here](https://github.com/roiperlman
 It's also possible to enable making and `OPTIONS` http request to a route and receive a text output of the route's documentation,
 which may be helpful during development.
 
-Expample:
+Expample: 
 
 ```typescript
 const route = new BasicRoute({
@@ -349,7 +349,7 @@ curl --request OPTIONS localhost:8080/path/to/route
 SuperRoute can also `VersionedMiddleware` objects to handle route versioning.
 See **[version-router-express](https://www.npmjs.com/package/version-router-express)** for further configuration details.
 
-**Example:**
+**Example:** 
 
 configure route with versioned routes
 ```typescript
@@ -590,7 +590,7 @@ Constructs a BodyParameter instance
 Defines a parameter expected to be present in the request's route
 
 ### constructor
-
+ 
 **new RouteParameter**(`name`: *string*, `description?`: *string*, `required?`: *boolean*, `additionalTests?`: [*RequestParameterTestFunction*](#Interface: RequestParameterTestFunction)[]): <a href="#Interafce:-RouteParameter">*RouteParameter*</a>
 
 Constructs a BodyParameter instance
@@ -712,7 +712,7 @@ Constructs a RouteError instance
 ___
 
 ### message
-Error message
+Error message 
 
 • **message**: *string*
 
