@@ -90,7 +90,7 @@ export class TestRouteSpecialHandler extends SuperRoute {
      res: Response,
      next: NextFunction,
      options: { [key: string]: any }) => {
-        console.log(error);
+
         res.status(501).send('specific')
   }
 }
@@ -830,7 +830,7 @@ describe('Class SuperRoute', async function () {
     it('should handle error with route specific error handler ', async function () {
       let res = await routeTestRequest('specificErrorHandler')
         .expect(501);
-      expect(res.error.message).to.eq('specific')
+      expect(res.error.text).to.eq('specific')
       //specificErrorHandler
     });
   });
