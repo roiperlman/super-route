@@ -14,7 +14,6 @@ import * as http from 'http';
 import {RouteError} from "../src";
 import {BodyParameter, ParameterType, RouteParameter} from "../src";
 import {md} from "../src/md";
-import {srErrorHandlerFunction} from "../lib";
 const request = require('supertest');
 
 const port = 8082;
