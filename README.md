@@ -480,7 +480,7 @@ Middleware order:
 
 **handles errors in the route's logic.**
 
-errors can be channeled to a custom error handler by defining $$errorHandler
+errors can be channeled to a custom error handler  specific to the route by defining $$errorHandler
 by default, a RouteError object containing route and request data will be created and passed to next(err)
 
 ##### Parameters:

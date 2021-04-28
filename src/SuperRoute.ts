@@ -312,14 +312,12 @@ export abstract class SuperRoute implements RouteSettings {
    * @param next
    */
   static DefaultErrorHandler(err: RouteError|RouteErrorI, req: Request, res: Response, next: NextFunction) {
-    if (err) {
-      if (err.logError) console.error(err);
-      res.status(err.statusCode ? err.statusCode : 500);
-      if (err.redirect) {
-        res.redirect(err.redirect);
-      } else {
-        res.send(err.response ? err.response : err.message);
-      }
+    if (err.logError) console.error(err);
+    res.status(err.statusCode ? err.statusCode : 500);
+    if (err.redirect) {
+      res.redirect(err.redirect);
+    } else {
+      res.send(err.response ? err.response : err.message);
     }
   }
 
@@ -553,7 +551,7 @@ export abstract class SuperRoute implements RouteSettings {
     err.requestPath = req.path;
 
     if (this.$$errorHandler) {
-      this.$$errorHandler(req, res, next, err, options);
+      this.$$errorHandler(err, req, res, next, options);
     } else {
       if (log) {
         console.error(err)
@@ -632,11 +630,11 @@ export interface AccessControlFunction extends RequestHandlerFactoryFunction{
 /**
  * A function that replaces the default error handler of the SuperRoute class
  */
-export interface srErrorHandlerFunction extends ErrorRequestHandler {
-  (req: Request,
+export interface srErrorHandlerFunction {
+  (error: RouteError,
+   req: Request,
    res: Response,
    next: NextFunction,
-   error: RouteError,
    options: { [key: string]: any }): void;
 }
 

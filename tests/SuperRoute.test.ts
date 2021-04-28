@@ -14,6 +14,7 @@ import * as http from 'http';
 import {RouteError} from "../src";
 import {BodyParameter, ParameterType, RouteParameter} from "../src";
 import {md} from "../src/md";
+import {srErrorHandlerFunction} from "../lib";
 const request = require('supertest');
 
 const port = 8082;
@@ -83,7 +84,20 @@ export class TestRoute extends SuperRoute {
   }
 }
 
-export const routes: Array<TestRoute> = [
+export class TestRouteSpecialHandler extends SuperRoute {
+  $$errorHandler =
+    (error: RouteError,
+     req: Request,
+     res: Response,
+     next: NextFunction,
+     options: { [key: string]: any }) => {
+        console.log(error);
+        res.status(501).send('specific')
+  }
+}
+
+// @ts-ignore
+export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
   new TestRoute({
     path: 'test',
     verb: 'get',
@@ -484,6 +498,18 @@ export const routes: Array<TestRoute> = [
       }
     ]
   }),
+  new TestRouteSpecialHandler({
+    path: 'specificErrorHandler',
+    verb: 'get',
+    name: 'specificErrorHandler',
+    authenticate: false,
+    middleware: [
+      function (req: Request, res: Response, next: NextFunction) {
+        this.handle(arguments, 'error to override', 400)
+        // res.status(200).send({response: 'Ok'})
+      }
+    ]
+  }),
 ];
 
 let httpServer: http.Server;
@@ -801,6 +827,12 @@ describe('Class SuperRoute', async function () {
       let response = await routeTestRequest('handle with static redirect')
         .send({throwError: true})
         .expect(302);
+    });
+    it('should handle error with route specific error handler ', async function () {
+      let res = await routeTestRequest('specificErrorHandler')
+        .expect(501);
+      expect(res.error.message).to.eq('specific')
+      //specificErrorHandler
     });
   });
   describe('Versioned Routes', async function () {
