@@ -246,6 +246,100 @@ export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
     ]
   }),
   new TestRoute({
+    path: 'users/getSome2/:role/:age?',
+    verb: 'post',
+    name: 'get some 2',
+    description: 'get some users',
+    authenticate: true,
+    routeParams: [
+      new RouteParameter(
+        'role',
+        'user role',
+        true,
+        [
+          //@ts-ignore
+          {
+            test: (value: string) => {
+              return ['admin', 'super'].includes(value)
+            },
+          }
+        ]
+      ),
+      new RouteParameter(
+        'age',
+        'user age',
+        false,
+        [
+          //@ts-ignore
+          {
+            test: value => value > 10,
+
+          }
+        ]
+      )
+    ],
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({user: 'Ok'})
+      }
+    ]
+  }),
+  new TestRoute({
+    path: 'users/getSome3/:miss/:age?',
+    verb: 'post',
+    name: 'get some 3',
+    description: 'get some users',
+    authenticate: true,
+    routeParams: [
+      new RouteParameter(
+        'role',
+        'user role',
+        true,
+        [
+          //@ts-ignore
+          {
+            test: (value: string) => {
+              return ['admin', 'super'].includes(value)
+            },
+          }
+        ]
+      ),
+      new RouteParameter(
+        'age',
+        'user age',
+        false,
+        [
+          //@ts-ignore
+          {
+            test: value => value > 10,
+
+          }
+        ]
+      )
+    ],
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({user: 'Ok'})
+      }
+    ]
+  }),
+  new TestRoute({
+    path: 'users/getSome4/:role/:age?',
+    verb: 'post',
+    name: 'get some 4',
+    description: 'get some users',
+    authenticate: true,
+    routeParams: [
+      new RouteParameter('role', 'user role', true, ),
+      new RouteParameter('age', 'user age', false)
+    ],
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({user: 'Ok'})
+      }
+    ]
+  }),
+  new TestRoute({
     path: 'handleWithStatic',
     verb: 'post',
     name: 'handle with static',
@@ -509,6 +603,21 @@ export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
       }
     ]
   }),
+  new TestRouteSpecialHandler({
+    path: 'd_error/:status?',
+    verb: 'post',
+    name: 'd_error',
+    authenticate: false,
+    middleware: [
+      function (req: Request, res: Response, next: NextFunction) {
+        if (req.params.status) {
+          next(new RouteError('default error handler', Number(req.params.status)));
+        } else {
+          next(new Error('default error handler'))
+        }
+      }
+    ]
+  }),
 ];
 
 let httpServer: http.Server;
@@ -759,6 +868,16 @@ describe('Class SuperRoute', async function () {
         })
         .expect(400);
       expect(response.error.text.split('\n')).to.have.length(3);
+      response = await routeTestRequest('new user')
+        .send({
+          firstName: 'first',
+          lastName: 'last',
+          isAdmin: 'true',
+          mobilePhone: true,
+          age: 10
+        })
+        .expect(400);
+      expect(response.error.text.split('\n')).to.have.length(4);
     });
   });
   describe('Route Parameters Validation', function () {
@@ -768,9 +887,9 @@ describe('Class SuperRoute', async function () {
     });
     it('should make a request with route params and error when they dont meet spec', async function () {
       userAuthState = true;
-      await request(server)
+      console.log(await request(server)
         .post('/users/getSome/admin/12')
-        .expect(200);
+        .expect(200));
       // await request(server)
       //   .post('/required/route/')
       //   .expect(400);
@@ -789,6 +908,46 @@ describe('Class SuperRoute', async function () {
       await request(server)
         .post('/users/getSome/super/5')
         .expect(400);
+      // no description in route overridden by ts-ignore should default to test number.
+      await request(server)
+        .post('/users/getSome2/admin/12')
+        .expect(200);
+      await request(server)
+        .post('/users/getSome2/admin')
+        .expect(200)
+      await request(server)
+        .post('/users/getSome2/admin/5')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome2/something/12')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome2/something/5')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome2/super/5')
+        .expect(400);
+      // miss-configured route params
+      await request(server)
+        .post('/users/getSome3/admin/5')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome3/something/12')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome3/something/5')
+        .expect(400);
+      await request(server)
+        .post('/users/getSome3/super/5')
+        .expect(400);
+      // no additional tests
+      await request(server)
+        .post('/users/getSome4/admin/5')
+        .expect(200);
+      await request(server)
+        .post('/users/getSome4/something/12')
+        .expect(200);
+
     });
   });
   describe('Error Handling', function () {
@@ -831,6 +990,21 @@ describe('Class SuperRoute', async function () {
       let res = await routeTestRequest('specificErrorHandler')
         .expect(501);
       expect(res.error.text).to.eq('specific')
+      //specificErrorHandler
+    });
+    it('should use the default error handler ', async function () {
+      let res = await request(server)
+        .post('/d_error')
+        .expect(500);
+      expect(res.error.text).to.eq('default error handler')
+      res = await request(server)
+        .post('/d_error/501')
+        .expect(501);
+      expect(res.error.text).to.eq('default error handler')
+      res = await request(server)
+        .post('/d_error/502')
+        .expect(502);
+      expect(res.error.text).to.eq('default error handler')
       //specificErrorHandler
     });
   });

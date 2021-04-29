@@ -340,9 +340,7 @@ export abstract class SuperRoute implements RouteSettings {
     const errors: Array<string> = [];
     // check all body parameters defined for the route and push errors
     this.bodyParams.forEach(bodyParam => {
-      if (!req.body.hasOwnProperty(bodyParam.name) && bodyParam.required) { // check if parameter is present and required
-        errors.push(`Request body is missing parameter ${bodyParam.name}`)
-      } else if (req.body.hasOwnProperty(bodyParam.name)) {
+      if (req.body.hasOwnProperty(bodyParam.name)) {
         const value = req.body[bodyParam.name];
         if (!SuperRoute.matchesType(value, bodyParam.type)) { // check if parameter type matches
           errors.push(`Request body parameter ${bodyParam.name} is not of type ${bodyParam.type} (${typeof value})`)
@@ -350,6 +348,8 @@ export abstract class SuperRoute implements RouteSettings {
         if (bodyParam.additionalTests) { // run additional tests
           bodyParam.runTests(value).forEach(result => errors.push(result))
         }
+      } else if (!req.body.hasOwnProperty(bodyParam.name) && bodyParam.required) { // check if parameter is present and required
+        errors.push(`Request body is missing parameter ${bodyParam.name}`)
       }
     });
     //
@@ -413,16 +413,10 @@ export abstract class SuperRoute implements RouteSettings {
   toMarkdown() {
     let tables;
     try { tables = this.generateTables() } catch (err) { throw err; }
-    let md;
-    try {
-      md = ejs.render(Templates.routeInfoMarkdown, {
-        route: this,
-        tables: tables
-      })
-    } catch (e) {
-      throw(e);
-    }
-    return md;
+    return ejs.render(Templates.routeInfoMarkdown, {
+      route: this,
+      tables: tables
+    })
   }
 
   /**
