@@ -1317,6 +1317,7 @@ describe('Class SuperRoute', async function () {
         expect(function() {
           // @ts-ignore
           route.toMarkdown()
+          console.log(route.toMarkdown());
         }).to.not.throw();
       });
     });

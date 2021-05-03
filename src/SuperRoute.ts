@@ -669,9 +669,13 @@ export const AvailableVerbs: Array<ExpressHttpVerb> = [
 export class Templates {
   static routeInfoMarkdown =
     `## <%= route.name %>
+    
 ###### <%= route.verb.toUpperCase() %> <%= route.path %>
+
 <%= route.description %>
+
 ___
+
 <% if(route.comments){ %> <%= route.comments %> <% } %>
 
 ### Route Details:
@@ -687,13 +691,21 @@ ___
 * Redirect on error: <% if(route.redirectOnError){ %>\`<%= route.redirectOnError || '' %>\`<% } %>
 
 ###Access Control:
+
 ___
+
 <%- tables.permissionsTable %>
+
 ### Route Parameters:
+
 ___
+
 <%- tables.routeParamsTable %>
+
 ### Body Parameters:
+
 ___
+
 <%- tables.bodyParamsTable %>
 
 `
