@@ -334,10 +334,26 @@ which may be helpful during development.
 Expample:
 
 ```typescript
+import {SuperRoute} from "./SuperRoute";
+
+function shouldShowHelp() {
+  return process.env.test === 'true'
+}
+
+class RouteWithHelp extends SuperRoute {
+  showHelp = (self: RouteWithHelp) => {
+    return process.env.test === 'true';
+  }
+}
+
+// Or 
+
 const route = new BasicRoute({
   //... route settings ...//
-  showHelp: process.env.test === 'true'
+  showHelp: true // or false
 })
+
+
 ```
 
 ```bash
@@ -451,7 +467,7 @@ const route = new SuperRoute({
 | `responseContentType` | *string* | response content type - used to set headers | `false` |
 | `errorHandlerOptions` | [*ErrorHandlerOptions*]() | Options that will be passed to the global error handler | |
 | `redirectOnError` | *string* | Optional redirect when error is handled by the route | `false` |
-| `showHelp` | *boolean* | When set to true, will return an ascii output of the requested route's information when called with the OPTIONS http method. <br>Example: <br> ```curl --request OPTIONS https://localhost:8080/path/to/my/route``` | `fasle`|
+| `showHelp` | *boolean* <br><br>or<br><br> (`self`: [*SuperRoute*](Class:-SuperRoute)) => *boolean*  | When set to true, will return an ascii output of the requested route's information when called with the OPTIONS http method. <br>Example: <br> ```curl --request OPTIONS https://localhost:8080/path/to/my/route``` | `fasle`|
 | `responseFormat` | *string* | response body type - used for automated testing | `false` |
 | `responseReturnType` | [*SuccessResponse*]() |response format used for documentation | `false` |
 

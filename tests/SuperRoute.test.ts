@@ -96,6 +96,13 @@ export class TestRouteSpecialHandler extends SuperRoute {
 }
 
 // @ts-ignore
+
+class RouteWithHelp extends SuperRoute {
+  showHelp = (self: RouteWithHelp) => {
+    return true
+  }
+}
+
 export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
   new TestRoute({
     path: 'test',
@@ -615,6 +622,17 @@ export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
         } else {
           next(new Error('default error handler'))
         }
+      }
+    ]
+  }),
+  new RouteWithHelp({
+    path: 'helpTest',
+    verb: 'get',
+    name: 'help test',
+    authenticate: false,
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send({response: 'Ok'})
       }
     ]
   }),
@@ -1326,5 +1344,11 @@ describe('Class SuperRoute', async function () {
         .options('/users/new ')
         .expect(200)
     });
+    it('should get help from a route with show help function', async function () {
+      let response = await request(server)
+        .options('/helpTest')
+        .expect(200)
+    });
+
   });
 });

@@ -92,7 +92,7 @@ export interface RouteSettings {
    *
    * Example: curl --request OPTIONS https://localhost:8080/path/to/my/route
    */
-  showHelp?: boolean;
+  showHelp?: boolean | ((self: SuperRoute) => boolean);
   /**
    * Options that will be passed to the global error handler
    */
@@ -130,7 +130,7 @@ export abstract class SuperRoute implements RouteSettings {
   bodyParams: Array<BodyParameter>;
   routeParams: Array<RouteParameter>;
   redirectOnError: string;
-  showHelp: boolean;
+  showHelp?: boolean | ((self: SuperRoute) => boolean);
   errorHandlerOptions: ErrorHandlerOptions;
   // set when a child class is defined
   $$authenticationFunction: RequestHandler|RequestHandlerWithPromise;
@@ -209,7 +209,12 @@ export abstract class SuperRoute implements RouteSettings {
       throw new Error(err);
     }
 
-    if (this.showHelp) {
+    // if showHelp is a function - call it and mount help route according to result
+    if (this.showHelp instanceof Function) {
+      if (this.showHelp(this)) {
+        router.options(path, this.help.bind(this))
+      }
+    } else if (this.showHelp === true) {
       router.options(path, this.help.bind(this))
     }
   }
@@ -670,9 +675,7 @@ export class Templates {
   static routeInfoMarkdown =
     `## <%= route.name %>
     
-    
 ###### <%= route.verb.toUpperCase() %> <%= route.path %>
-
 
 <%= route.description %>
 
