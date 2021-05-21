@@ -29,7 +29,7 @@
   "dependencies": {
     "ejs": "^2.7.1",
     "express": "^4.17.1",
-    "version-router-express": "^0.2.9"
+    "version-router-express": "^0.2.11"
   },
   "devDependencies": {
     "@microsoft/tsdoc": "^0.13.0",
