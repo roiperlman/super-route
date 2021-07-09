@@ -347,8 +347,11 @@ export abstract class SuperRoute implements RouteSettings {
     this.bodyParams.forEach(bodyParam => {
       if (req.body.hasOwnProperty(bodyParam.name)) {
         const value = req.body[bodyParam.name];
-        if (!SuperRoute.matchesType(value, bodyParam.type)) { // check if parameter type matches
-          errors.push(`Request body parameter ${bodyParam.name} is not of type ${bodyParam.type} (${typeof value})`)
+        if (!(value == null && bodyParam.nullable)) {
+          // type check will run only if value is NOT null OR if value is null and param is not nullable
+          if (!SuperRoute.matchesType(value, bodyParam.type)) { // check if parameter type matches
+            errors.push(`Request body parameter ${bodyParam.name} is not of type ${bodyParam.type} (${typeof value})`)
+          }
         }
         if (bodyParam.additionalTests) { // run additional tests
           bodyParam.runTests(value).forEach(result => errors.push(result))

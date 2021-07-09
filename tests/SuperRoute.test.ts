@@ -215,6 +215,23 @@ export const routes: Array<TestRoute|TestRouteSpecialHandler> = [
     ]
   }),
   new TestRoute({
+    path: 'users/newNullable',
+    verb: 'post',
+    name: 'new user nullable',
+    description: 'creates a new user nullable',
+    authenticate: true,
+    showHelp: true,
+    bodyParams: [
+      new BodyParameter('firstName', 'string', 'user first name', true),
+      new BodyParameter('lastName', 'string', 'user last name', true, [], true),
+    ],
+    middleware: [
+      (req: Request, res: Response, next: NextFunction) => {
+        res.status(200).send(req.body)
+      }
+    ]
+  }),
+  new TestRoute({
     path: 'users/getSome/:role/:age?',
     verb: 'post',
     name: 'get some',
@@ -812,6 +829,7 @@ describe('Class SuperRoute', async function () {
     it('should create a default body parameter', async function () {
       const p = new BodyParameter('name');
       expect(p.type).to.eq('any');
+      expect(p.nullable).to.be.false;
     });
     it('should mount a route with body parameters and make a successful request', async function () {
       userAuthState = true;
@@ -896,6 +914,22 @@ describe('Class SuperRoute', async function () {
         })
         .expect(400);
       expect(response.error.text.split('\n')).to.have.length(4);
+    });
+    it('should make a successful request with a nullable parameter', async function () {
+      let response = await routeTestRequest('new user nullable')
+        .send({
+          firstName: 'first',
+          lastName: null,
+        })
+        .expect(200);
+    });
+    it('should make a successful request with a null value on a non-nullable parameter', async function () {
+      let response = await routeTestRequest('new user nullable')
+        .send({
+          firstName: null,
+          lastName: 'last',
+        })
+        .expect(400);
     });
   });
   describe('Route Parameters Validation', function () {

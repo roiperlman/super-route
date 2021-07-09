@@ -600,6 +600,7 @@ Constructs a BodyParameter instance
 | `description` | *string* | '' | text that will be displayed in the rendered help output |
 | `required` | *boolean* | true | if true, will throw an error when the property is missing |
 | `additionalTests` | [*RequestParameterTestFunction*](#Interface:-RequestParameterTestFunction)[] | [] | an array of additional test functions and their description |
+| `nullable` | *boolean* | false | when true, allows a required parameter to be null, ignoring it's type definition |
 
 ## Class: RouteParameter
 

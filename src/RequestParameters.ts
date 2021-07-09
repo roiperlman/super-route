@@ -28,6 +28,7 @@ abstract class RequestParameter {
  */
 export class BodyParameter extends RequestParameter {
   type: ParameterType;
+  nullable: boolean;
   /**
    * Constructs a BodyParameter instance
    * @constructor
@@ -36,18 +37,21 @@ export class BodyParameter extends RequestParameter {
    * @param required - if true, will throw an error when the property is missing
    * @param description - text that will be displayed in the rendered help output
    * @param additionalTests - an array of additional test functions and their description
+   * @param nullable - is parameter value nullable. allows to make parameter required and exclude type validation when value is null
    */
   constructor(name: string,
               type: ParameterType = 'any',
               description: string = '',
               required: boolean = true,
-              additionalTests: Array<RequestParameterTestFunction> = []) {
+              additionalTests: Array<RequestParameterTestFunction> = [],
+              nullable: boolean = false) {
     super();
     this.name = name;
     this.type = type;
     this.required = required;
     this.description = description;
     this.additionalTests = additionalTests;
+    this.nullable = nullable;
   }
 }
 
