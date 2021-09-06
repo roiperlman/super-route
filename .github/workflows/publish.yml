@@ -2,13 +2,10 @@ name: Build and publish package
 on:
   push:
     branches: [ master ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,7 +23,7 @@ jobs:
         id: build
         run: tsc
 
-########## TEST ##########
+  ########## TEST ##########
   test:
     needs: [build]
     runs-on: ubuntu-latest
@@ -45,15 +42,8 @@ jobs:
       - name: Run Tests
         id: test
         run: npm run test
-#      - name: Run Coveralls
-#        run: npm run coveralls
-#      - name: Publish results to codecov
-#        uses: codecov/codecov-action@v2
-#        with:
-#          verbose: true
 
-
-########## PUBLISH ##########
+  ########## PUBLISH ##########
   publish:
     needs: [ build, test ]
     runs-on: ubuntu-latest
@@ -80,24 +70,20 @@ jobs:
       - if: steps.publish.outputs.type != 'none'
         run: |
           echo "Version changed: ${{ steps.publish.outputs.old-version }} => ${{ steps.publish.outputs.version }}"
-
+  ########## SEND REPORT ##########
   send_report:
     if: always()
     needs: [ build, test, publish ]
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - name: Private actions checkout
-        uses: daspn/private-actions-checkout@v2
+      - run: echo "Sending report to telgram bot"
+      - name: Notify
+        uses: appleboy/telegram-action@master
         with:
-          actions_list: '["roiperlman/telegram_notifier@master"]'
-          checkout_base_path: ./.github/actions/external
-          app_id: ${{ secrets.APP_ID }}
-          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
-          configure_git: true
-      - name: notify
-        uses: ./.github/actions/external/telegram_notifier/.github/actions/notifier
-        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
           message: >
             Workflow Execution Summary:
 
@@ -113,9 +99,3 @@ jobs:
               ▪️ Publish: ${{ needs.publish.result }}
                     New Version: ${{ needs.publish.outputs.new_version }}
                     Update Type: ${{ needs.publish.outputs.update_type }}
-
-
-
-
-
-
